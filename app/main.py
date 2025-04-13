@@ -5,6 +5,8 @@ from tortoise.contrib.fastapi import register_tortoise
 from app.services.events.router import router as events_router
 from app.services.users.router import router as users_router
 from app.services.tasks.router import router as tasks_router
+from app.services.calendar.router import router as calendar_router
+from app.core.config import DATABASE_URL
 
 app = FastAPI(
     title="Edu Events Platform API",
@@ -29,15 +31,17 @@ app.add_middleware(
 app.include_router(events_router, prefix="/events", tags=["Events"])
 app.include_router(users_router, prefix="/users", tags=["Users"])
 app.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
+app.include_router(calendar_router, prefix="/calendar", tags=["Calendar"])
 
 register_tortoise(
     app,
-    db_url="sqlite://db.sqlite3",
+    db_url=DATABASE_URL,
     modules={
         "models": [
             "app.models.event",
             "app.models.user", 
-            "app.models.task"
+            "app.models.task",
+            "app.models.calendar"
         ]
     },
     generate_schemas=True,
