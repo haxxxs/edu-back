@@ -6,7 +6,9 @@ from app.services.events.router import router as events_router
 from app.services.users.router import router as users_router
 from app.services.tasks.router import router as tasks_router
 from app.services.calendar.router import router as calendar_router
-from app.core.config import DATABASE_URL
+from app.services.courses.router import router as courses_router
+from app.services.auth.router import router as auth_router
+from app.core.config import DATABASE_URL, TORTOISE_ORM
 
 app = FastAPI(
     title="Edu Events Platform API",
@@ -32,21 +34,12 @@ app.include_router(events_router, prefix="/events", tags=["Events"])
 app.include_router(users_router, prefix="/users", tags=["Users"])
 app.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
 app.include_router(calendar_router, prefix="/calendar", tags=["Calendar"])
+app.include_router(courses_router, prefix="/api/education/courses", tags=["Education Courses"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication & Profile"])
 
-register_tortoise(
-    app,
-    db_url=DATABASE_URL,
-    modules={
-        "models": [
-            "app.models.event",
-            "app.models.user", 
-            "app.models.task",
-            "app.models.calendar"
-        ]
-    },
-    generate_schemas=True,
-    add_exception_handlers=True,
-)
+print(TORTOISE_ORM)
+
+register_tortoise(app, generate_schemas=True, add_exception_handlers=True, config=TORTOISE_ORM)
 
 @app.get("/health")
 async def health_check():

@@ -21,3 +21,24 @@ settings = Settings()
 
 # Database URL
 DATABASE_URL = f"postgres://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}" 
+
+TORTOISE_ORM = {
+    "connections": {
+        "default": DATABASE_URL,
+    },
+    "apps": {
+        "models": {
+            "models": [
+                "app.models.user", 
+                "app.models.event", 
+                "app.models.task", 
+                "app.models.calendar",
+                "app.models.course",
+                "app.models.course_module",
+            ],
+            "default_connection": "default",
+        },
+    },
+    "use_tz": True,
+    "timezone": "UTC",
+}
