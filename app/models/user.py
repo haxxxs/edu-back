@@ -17,6 +17,7 @@ class User(models.Model):
     about = fields.TextField(null=True)
     location = fields.CharField(max_length=100, null=True)
     is_active = fields.BooleanField(default=True) # Keep for enabling/disabling users
+    is_admin = fields.BooleanField(default=False)
     created_at = fields.DatetimeField(auto_now_add=True)
     # Add updated_at for tracking profile updates
     updated_at = fields.DatetimeField(auto_now=True)

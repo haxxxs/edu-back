@@ -8,6 +8,7 @@ from app.services.tasks.router import router as tasks_router
 from app.services.calendar.router import router as calendar_router
 from app.services.courses.router import router as courses_router
 from app.services.auth.router import router as auth_router
+from app.services.admin.router import router as admin_router
 from app.core.config import DATABASE_URL, TORTOISE_ORM
 
 app = FastAPI(
@@ -36,6 +37,7 @@ app.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
 app.include_router(calendar_router, prefix="/calendar", tags=["Calendar"])
 app.include_router(courses_router, prefix="/api/education/courses", tags=["Education Courses"])
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication & Profile"])
+app.include_router(admin_router, prefix="/api/admin", tags=["Administration"])
 
 print(TORTOISE_ORM)
 

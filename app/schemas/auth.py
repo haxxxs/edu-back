@@ -1,9 +1,11 @@
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
 # Schema for user registration input
 class UserRegistrationInput(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8, description="Password must be at least 8 characters long")
+    name: Optional[str] = None
 
 # Schema for user login input
 class UserLoginInput(BaseModel):
@@ -12,8 +14,14 @@ class UserLoginInput(BaseModel):
 
 # Schema for the response after successful login
 class AuthResponse(BaseModel):
-    token: str
+    access_token: str = Field(..., alias="token")
     token_type: str = "bearer" # Typically included
+    is_admin: bool = False
+    user_id: int
+    email: EmailStr
+    
+    class Config:
+        allow_population_by_field_name = True
 
 # Schema for a simple message response
 class MessageResponse(BaseModel):

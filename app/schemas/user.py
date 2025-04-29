@@ -18,6 +18,7 @@ class UserBase(BaseModel):
     about: Optional[str] = Field(None, description="User's self-description")
     location: Optional[str] = Field(None, max_length=100, description="User's location")
     is_active: Optional[bool] = True
+    is_admin: bool = False
 
     class Config:
         orm_mode = True
@@ -33,6 +34,17 @@ class UserInDB(UserBase):
     id: int
     hashed_password: str
     created_at: datetime
+
+# Schema for JWT token data
+class TokenData(BaseModel):
+    user_id: int
+    is_admin: bool = False
+
+# Schema for JWT token response
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    is_admin: bool = False
 
 # Schema for the user profile API response (GET /api/auth/profile)
 class UserProfile(BaseModel):

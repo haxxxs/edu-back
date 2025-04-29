@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: str = "5432"
-    POSTGRES_DB: str = "edu_platform"
+    POSTGRES_DB: str = "edu-platform"
     
     # JWT settings
     SECRET_KEY: str = "your-secret-key-here"
@@ -20,8 +20,9 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Database URL
-DATABASE_URL = f"postgres://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}" 
+DATABASE_URL = f"postgres://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 
+# Tortoise ORM Config
 TORTOISE_ORM = {
     "connections": {
         "default": DATABASE_URL,
@@ -29,12 +30,8 @@ TORTOISE_ORM = {
     "apps": {
         "models": {
             "models": [
-                "app.models.user", 
-                "app.models.event", 
-                "app.models.task", 
-                "app.models.calendar",
-                "app.models.course",
-                "app.models.course_module",
+                "app.models",
+                "aerich.models"
             ],
             "default_connection": "default",
         },

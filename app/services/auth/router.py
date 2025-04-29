@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm # Use for login form data
 from tortoise.exceptions import IntegrityError
+from datetime import timedelta
 
 from app.models.user import User
 from app.schemas.auth import UserRegistrationInput, AuthResponse, MessageResponse
-from app.schemas.user import UserProfile
+from app.schemas.user import UserProfile, Token
 from app.services.auth import service as auth_service
-from app.core.security import create_access_token, get_current_active_user
+from app.core.security import create_access_token, get_current_active_user, authenticate_user
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -40,18 +42,41 @@ async def login_for_access_token(
     # Alternatively, use UserLoginInput and expect JSON
     form_data: OAuth2PasswordRequestForm = Depends()
 ):
-    """Authenticate user and return JWT token."""
+    """Authenticate user and return JWT token with admin status."""
     # Note: OAuth2PasswordRequestForm uses 'username' field for the email
-    user = await auth_service.authenticate_user(email=form_data.username, password=form_data.password)
+    user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Неверный email или пароль",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token = create_access_token(data={"sub": user.email})
-    return AuthResponse(token=access_token)
+    # Проверяем, является ли пользователь админом
+    # Если это предопределенная учетная запись админа, устанавливаем флаг
+    admin_email = "admin@admin.ru"
+    admin_password = "ghjhjr11"
+    
+    if form_data.username == admin_email and form_data.password == admin_password:
+        if not user.is_admin:
+            user.is_admin = True
+            await user.save()
+    
+    # Создаем токен
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(user.id), "admin": user.is_admin},
+        expires_delta=access_token_expires
+    )
+    
+    # Возвращаем токен, информацию об админе и данные пользователя
+    return AuthResponse(
+        token=access_token,
+        token_type="bearer",
+        is_admin=user.is_admin,
+        user_id=user.id,
+        email=user.email
+    )
 
 # Example using JSON input instead of form data for login
 # @router.post("/login/json", response_model=AuthResponse, summary="User login (JSON input)")

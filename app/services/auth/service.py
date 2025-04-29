@@ -3,7 +3,7 @@ from tortoise.exceptions import DoesNotExist, IntegrityError
 
 from app.models.user import User
 from app.schemas.auth import UserRegistrationInput
-from app.core.security import hash_password, verify_password
+from app.core.security import get_password_hash, verify_password
 
 async def get_user_by_email(email: str) -> Optional[User]:
     """Fetch a user by their email address."""
@@ -29,7 +29,7 @@ async def create_user(user_data: UserRegistrationInput) -> User:
     Create a new user in the database.
     Raises IntegrityError if email already exists.
     """
-    hashed_pass = hash_password(user_data.password)
+    hashed_pass = get_password_hash(user_data.password)
     # Create user instance (name, etc., could be added here or updated later)
     # Use create() which handles saving
     try:
