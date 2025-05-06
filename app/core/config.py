@@ -30,7 +30,12 @@ TORTOISE_ORM = {
     "apps": {
         "models": {
             "models": [
-                "app.models",
+                "app.models.course",
+                "app.models.course_content",
+                "app.models.user",
+                "app.models.event",
+                "app.models.task",
+                "app.models.calendar",
                 "aerich.models"
             ],
             "default_connection": "default",
