@@ -70,6 +70,7 @@ class CourseContentService:
                             {
                                 "id": lesson.id,
                                 "title": lesson.title,
+                                "content": lesson.content,
                                 "content_blocks": [
                                     {
                                         "id": block.id,

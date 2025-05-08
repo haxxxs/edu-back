@@ -39,6 +39,7 @@ class ContentBlockResponse(ContentBlockBase):
 class LessonContent(BaseModel):
     id: UUID
     title: str
+    content: Optional[str] = None
     content_blocks: List[ContentBlockResponse]
 
     model_config = {
