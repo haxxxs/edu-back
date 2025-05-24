@@ -23,7 +23,18 @@ async def register_user(user_in: UserRegistrationInput):
         # Optionally log the user in immediately and return a token,
         # but current spec asks for a message.
         return MessageResponse(message=f"User {user.email} registered successfully. Please login.")
-    except IntegrityError:
+    except ValueError as e:
+        # Handle Telegram ID validation errors
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except IntegrityError as e:
+        if "Telegram ID already registered" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Telegram ID already registered",
+            )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered",
@@ -75,7 +86,8 @@ async def login_for_access_token(
         token_type="bearer",
         is_admin=user.is_admin,
         user_id=user.id,
-        email=user.email
+        email=user.email,
+        telegram_id=user.telegram_id
     )
 
 # Example using JSON input instead of form data for login
@@ -106,6 +118,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
         avatarUrl=current_user.avatar_url, # Map avatar_url to avatarUrl
         about=current_user.about,
         location=current_user.location,
+        telegram_id=current_user.telegram_id,
         joinedAt=current_user.created_at # Map created_at to joinedAt
         # stats=... # Fetch and add stats if implemented
     )

@@ -13,9 +13,14 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "your-secret-key-here"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-
+    
+    # Telegram settings
+    TELEGRAM_BOT_TOKEN: Optional[str] = None
+    TELEGRAM_BOT_USERNAME: Optional[str] = None
+    
     class Config:
         env_file = ".env"
+        case_sensitive = True
 
 settings = Settings()
 

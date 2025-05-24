@@ -8,6 +8,7 @@ from app.models.user import User, UserRole
 ADMIN_EMAIL = "admin@admin.ru"
 ADMIN_PASSWORD = "ghjhjr11"
 ADMIN_NAME = "Администратор"
+ADMIN_TELEGRAM_ID = "admin_telegram_id"  # Временный ID для админа
 
 async def create_admin_user():
     """Создает или обновляет админского пользователя"""
@@ -22,6 +23,8 @@ async def create_admin_user():
         if not admin.is_admin:
             admin.is_admin = True
             admin.role = UserRole.ADMIN
+            if not admin.telegram_id:
+                admin.telegram_id = ADMIN_TELEGRAM_ID
             await admin.save()
             print(f"Пользователь {ADMIN_EMAIL} обновлен до администратора")
         else:
@@ -34,7 +37,8 @@ async def create_admin_user():
             name=ADMIN_NAME,
             hashed_password=hashed_password,
             is_admin=True,
-            role=UserRole.ADMIN
+            role=UserRole.ADMIN,
+            telegram_id=ADMIN_TELEGRAM_ID
         )
         print(f"Создан новый администратор с email {ADMIN_EMAIL}")
     

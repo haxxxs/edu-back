@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS "users" (
     "location" VARCHAR(100),
     "is_active" BOOL NOT NULL DEFAULT True,
     "is_admin" BOOL NOT NULL DEFAULT False,
+    "telegram_id" VARCHAR(255) UNIQUE,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

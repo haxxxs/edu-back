@@ -6,6 +6,7 @@ class UserRegistrationInput(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8, description="Password must be at least 8 characters long")
     name: Optional[str] = None
+    telegram_id: str = Field(..., description="Telegram ID or username (must start with @ or be numeric)")
 
 # Schema for user login input
 class UserLoginInput(BaseModel):
@@ -19,6 +20,7 @@ class AuthResponse(BaseModel):
     is_admin: bool = False
     user_id: int
     email: EmailStr
+    telegram_id: Optional[str] = None
     
     class Config:
         allow_population_by_field_name = True

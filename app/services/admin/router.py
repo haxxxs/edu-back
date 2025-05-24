@@ -1,15 +1,68 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List, Optional
+from pydantic import BaseModel
 
-from app.core.security import get_admin_user
+from app.core.security import get_admin_user, get_current_user
 from app.models.user import User
 from app.models.course import Course
 from app.models.user_course import UserCourse, Certificate
+from app.services.telegram_service import telegram_service
 
 router = APIRouter()
+security = HTTPBearer()
+
+class TelegramTestRequest(BaseModel):
+    telegram_id: str
+    message: str
+
+@router.get("/test-simple-auth")
+async def test_simple_auth(
+    current_user: User = Depends(get_current_user),
+    credentials: HTTPAuthorizationCredentials = Security(security)
+):
+    """Simple test endpoint to check basic authentication (no admin required)"""
+    return {
+        "success": True,
+        "message": "Basic authentication successful",
+        "user_id": current_user.id,
+        "user_email": current_user.email,
+        "is_admin": current_user.is_admin
+    }
+
+@router.get("/test-auth")
+async def test_auth(
+    admin_user: User = Depends(get_admin_user),
+    credentials: HTTPAuthorizationCredentials = Security(security)
+):
+    """Simple test endpoint to check admin authentication"""
+    return {
+        "success": True,
+        "message": "Admin authentication successful",
+        "admin_id": admin_user.id,
+        "admin_email": admin_user.email,
+        "is_admin": admin_user.is_admin
+    }
+
+@router.post("/test-telegram")
+async def test_telegram_notification(
+    request: TelegramTestRequest,
+    admin_user: User = Depends(get_admin_user),
+    credentials: HTTPAuthorizationCredentials = Security(security)
+):
+    """Test sending Telegram notification (admin only)"""
+    success = await telegram_service.send_message(request.telegram_id, request.message)
+    return {
+        "success": success,
+        "message": "Notification sent successfully" if success else "Failed to send notification",
+        "telegram_id": request.telegram_id
+    }
 
 @router.get("/dashboard", summary="Получение данных для админской панели")
-async def admin_dashboard(admin_user: User = Depends(get_admin_user)):
+async def admin_dashboard(
+    admin_user: User = Depends(get_admin_user),
+    credentials: HTTPAuthorizationCredentials = Security(security)
+):
     """
     Получает общую статистику для админской панели
     
@@ -41,6 +94,7 @@ async def admin_dashboard(admin_user: User = Depends(get_admin_user)):
 @router.get("/users", summary="Получение списка всех пользователей")
 async def get_all_users(
     admin_user: User = Depends(get_admin_user),
+    credentials: HTTPAuthorizationCredentials = Security(security),
     limit: Optional[int] = 100,
     offset: Optional[int] = 0
 ):
@@ -64,6 +118,7 @@ async def get_all_users(
                 "email": user.email,
                 "is_admin": user.is_admin,
                 "is_active": user.is_active,
+                "telegram_id": user.telegram_id,
                 "created_at": user.created_at
             }
             for user in users
@@ -73,6 +128,7 @@ async def get_all_users(
 @router.get("/courses", summary="Получение списка всех курсов")
 async def get_all_courses(
     admin_user: User = Depends(get_admin_user),
+    credentials: HTTPAuthorizationCredentials = Security(security),
     limit: Optional[int] = 100,
     offset: Optional[int] = 0
 ):
@@ -104,6 +160,7 @@ async def get_all_courses(
 @router.get("/user-courses", summary="Получение всех записей пользователей на курсы")
 async def get_all_user_courses(
     admin_user: User = Depends(get_admin_user),
+    credentials: HTTPAuthorizationCredentials = Security(security),
     limit: Optional[int] = 100,
     offset: Optional[int] = 0
 ):
@@ -141,7 +198,8 @@ async def get_all_user_courses(
 @router.put("/users/{user_id}/admin", summary="Назначение/снятие прав администратора")
 async def toggle_admin_status(
     user_id: int,
-    admin_user: User = Depends(get_admin_user)
+    admin_user: User = Depends(get_admin_user),
+    credentials: HTTPAuthorizationCredentials = Security(security)
 ):
     """
     Назначает или снимает права администратора у пользователя

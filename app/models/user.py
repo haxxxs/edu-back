@@ -18,6 +18,7 @@ class User(models.Model):
     location = fields.CharField(max_length=100, null=True)
     is_active = fields.BooleanField(default=True) # Keep for enabling/disabling users
     is_admin = fields.BooleanField(default=False)
+    telegram_id = fields.CharField(max_length=255, null=True, unique=True) # New field for Telegram ID
     created_at = fields.DatetimeField(auto_now_add=True)
     # Add updated_at for tracking profile updates
     updated_at = fields.DatetimeField(auto_now=True)

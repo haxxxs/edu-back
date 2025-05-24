@@ -19,6 +19,7 @@ class UserBase(BaseModel):
     location: Optional[str] = Field(None, max_length=100, description="User's location")
     is_active: Optional[bool] = True
     is_admin: bool = False
+    telegram_id: Optional[str] = Field(None, description="User's Telegram ID or username")
 
     class Config:
         orm_mode = True
@@ -55,6 +56,7 @@ class UserProfile(BaseModel):
     avatarUrl: Optional[HttpUrl] = Field(None, description="URL of the user's avatar image") # Note the alias name
     about: Optional[str] = None
     location: Optional[str] = None
+    telegram_id: Optional[str] = Field(None, description="User's Telegram ID or username")
     joinedAt: datetime = Field(..., description="Timestamp when the user registered") # Note the alias name
     # stats: Optional[UserStats] = None # Add later if needed
 
